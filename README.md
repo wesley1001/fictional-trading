@@ -1,4 +1,4 @@
-# fictional-trade
+# fictional-trading
 
 
 ## Usage
