@@ -1,14 +1,14 @@
 import math
 import typing
 import numpy as np
+import tqsdk
 from tqsdk import tafunc
-
-# import tentacles.Trading.Mode.lorentzian_classification.utils as utils
-# import tentacles.Meta.Keywords.matrix_library.basic_tentacles.matrix_basic_keywords.tools.utilities as basic_utils
+from tqsdk import ta
+import pandas as pd
 
 
 def rescale(
-    src: np.ndarray[np.float64],
+    src: np.ndarray,
     oldMin: float,
     oldMax: float,
     newMin: float,
@@ -18,7 +18,7 @@ def rescale(
 
 
 def normalize(
-    src: np.ndarray[np.float64],
+    src: np.ndarray,
     #   _min: float, _max: float
 ):
     # normalizes to values from 0 -1
@@ -27,9 +27,14 @@ def normalize(
 
     # return _min + (_max - _min) * (src - np.min(src)) / np.max(src)
 
+def rsi(_close: np.ndarray, n=14):
+    lc = _close.shift(1)
+    return tafunc.sma(pd.Series(np.where(_close - lc > 0, _close - lc, 0)), n, 1) / tafunc.sma(np.absolute(_close - lc), n, 1) * 100
 
-def n_rsi(_close: np.ndarray[np.float64], f_paramA, f_paramB):
-    return rescale(tafunc.ema(tafunc.rsi(_close, f_paramA), f_paramB), 0, 100, 0, 1)
+
+def n_rsi(_close: np.ndarray, f_paramA, f_paramB):
+    rsi = rsi(_close, f_paramA)
+    return rescale(tafunc.ema(rsi, f_paramB), 0, 100, 0, 1)
 
 # util functions
 
@@ -55,8 +60,8 @@ def cut_data_to_same_len(data_set: tuple or list, get_list=False):
 
 
 def calculate_rma(
-    src: np.ndarray[np.float64], length
-) -> np.ndarray[np.float64]:
+    src: np.ndarray, length
+) -> np.ndarray:
     # TODO not the same as on here: https://www.tradingview.com/pine-script-reference/v5/#fun_ta%7Bdot%7Drma
     alpha = 1 / length
     # cut first data as its not very accurate
@@ -70,7 +75,7 @@ def calculate_rma(
 ########
 
 
-def n_wt(_hlc3: np.ndarray[np.float64], f_paramA, f_paramB):
+def n_wt(_hlc3: np.ndarray, f_paramA, f_paramB):
     ema1 = tafunc.ema(_hlc3, f_paramA)
     ema2 = tafunc.ema(abs(_hlc3 - ema1), f_paramA)
     ci = (_hlc3[1:] - ema1[1:]) / (0.015 * ema2[1:])
@@ -81,9 +86,9 @@ def n_wt(_hlc3: np.ndarray[np.float64], f_paramA, f_paramB):
 
 
 def n_cci(
-    highs: np.ndarray[np.float64],
-    lows: np.ndarray[np.float64],
-    closes: np.ndarray[np.float64],
+    highs: np.ndarray,
+    lows: np.ndarray,
+    closes: np.ndarray,
     f_paramA,
     f_paramB,
 ):
@@ -94,9 +99,9 @@ def n_cci(
 
 
 def n_adx(
-    highSrc: np.ndarray[np.float64],
-    lowSrc: np.ndarray[np.float64],
-    closeSrc: np.ndarray[np.float64],
+    highSrc: np.ndarray,
+    lowSrc: np.ndarray,
+    closeSrc: np.ndarray,
     f_paramA: int,
 ):
     length: int = f_paramA
@@ -147,12 +152,12 @@ def n_adx(
 
 
 def regime_filter(
-    ohlc4: np.ndarray[np.float64],
-    highs: np.ndarray[np.float64],
-    lows: np.ndarray[np.float64],
+    ohlc4: np.ndarray,
+    highs: np.ndarray,
+    lows: np.ndarray,
     threshold: float,
     use_regime_filter: bool,
-) -> np.ndarray[np.bool_]:
+) -> np.ndarray:
     data_length = len(ohlc4)
     if not use_regime_filter:
         return np.array([True] * data_length)
@@ -171,8 +176,8 @@ def regime_filter(
                  math.sqrt(pow(omega, 4) + 16 * pow(omega, 2))) / 8
         klmfs.append(alpha * ohlc4[index] + (1 - alpha) * klmfs[-1])
         abs_curve_slope.append(abs(klmfs[-1] - klmfs[-2]))
-    abs_curve_slope: np.ndarray[np.float64] = np.array(abs_curve_slope)
-    exponentialAverageAbsCurveSlope: np.ndarray[np.float64] = tafunc.ema(
+    abs_curve_slope: np.ndarray = np.array(abs_curve_slope)
+    exponentialAverageAbsCurveSlope: np.ndarray = tafunc.ema(
         abs_curve_slope, 200
     )
     (
@@ -181,7 +186,7 @@ def regime_filter(
     ) = cut_data_to_same_len(
         (exponentialAverageAbsCurveSlope, abs_curve_slope)
     )
-    normalized_slope_decline: np.ndarray[np.float64] = (
+    normalized_slope_decline: np.ndarray = (
         abs_curve_slope - exponentialAverageAbsCurveSlope
     ) / exponentialAverageAbsCurveSlope
     # Calculate the slope of the curve.
@@ -190,13 +195,13 @@ def regime_filter(
 
 
 def filter_adx(
-    candle_closes: np.ndarray[np.float64],
-    candle_highs: np.ndarray[np.float64],
-    candle_lows: np.ndarray[np.float64],
+    candle_closes: np.ndarray,
+    candle_highs: np.ndarray,
+    candle_lows: np.ndarray,
     length: int,
     adx_threshold: int,
     use_adx_filter: bool,
-) -> np.ndarray[np.bool_]:
+) -> np.ndarray:
     data_length: int = len(candle_closes)
     if not use_adx_filter:
         return np.array([True] * data_length)
@@ -246,19 +251,19 @@ def filter_adx(
                 abs(di_positive - di_negative) /
                 (di_positive + di_negative) * 100
             )
-    dx: np.ndarray[np.float64] = np.array(dx)
-    adx: np.ndarray[np.float64] = calculate_rma(dx, length)
+    dx: np.ndarray = np.array(dx)
+    adx: np.ndarray = calculate_rma(dx, length)
     return adx > adx_threshold
 
 
 def filter_volatility(
-    candle_highs: np.ndarray[np.float64],
-    candle_lows: np.ndarray[np.float64],
-    candle_closes: np.ndarray[np.float64],
+    candle_highs: np.ndarray,
+    candle_lows: np.ndarray,
+    candle_closes: np.ndarray,
     min_length: int = 1,
     max_length: int = 10,
     use_volatility_filter: bool = True,
-) -> np.ndarray[np.bool_]:
+) -> np.ndarray:
     if not use_volatility_filter:
         return np.array([True] * len(candle_closes)), None, None
     recentAtr = tafunc.atr(candle_highs, candle_lows,

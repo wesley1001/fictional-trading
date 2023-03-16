@@ -98,5 +98,5 @@ class FutureTrader:
                 symbol=symbol,
             )
         elif strategy == "classification":
-
+            pass
 

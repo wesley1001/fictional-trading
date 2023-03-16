@@ -9,8 +9,8 @@ def main():
     # symbol_list = ['soybean_oil']
     # dao.download_data(tqAPI.auth, symbol_list, date(2020, 9, 3), date(2022, 9, 1), intervals)
     intervals =  {'tick', '1s', '1m', '1d'}
-    symbol_list = ['pta']
-    dao.download_data(auth, symbol_list, date(2022, 11, 20), date(2023, 11, 30), intervals)
+    symbol_list = ['cotton']
+    dao.download_data(auth, symbol_list, date(2022, 10, 20), date(2023, 3, 10), intervals)
     print(symbol_list, intervals, "downloaded")
 
     
