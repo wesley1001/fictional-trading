@@ -97,4 +97,6 @@ class FutureTrader:
             model.backtest(
                 symbol=symbol,
             )
+        elif strategy == "classification":
+
 
