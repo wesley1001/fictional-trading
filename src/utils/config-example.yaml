@@ -1,0 +1,16 @@
+account:
+  a1:
+    username: 
+    password: 
+live_account:
+  a1:
+    broker_id: ""
+    account_id: ""
+    password: ""
+    
+dbs:
+  db_name:
+  host: 
+  port: 
+  username: 
+  password: 
