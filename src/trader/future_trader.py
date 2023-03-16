@@ -97,6 +97,14 @@ class FutureTrader:
             model.backtest(
                 symbol=symbol,
             )
-        elif strategy == "classification":
-            pass
+        elif strategy == "lclassification":
+            from .strategies.lclassification import LClassification
+            symbol = "CZCE.CF305"
+            model = LClassification(
+                auth=self.auth,
+                is_wandb=self.is_wandb
+            )
+            model.backtest(
+                symbol=symbol,
+            )
 
