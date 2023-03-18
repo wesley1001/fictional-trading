@@ -7,18 +7,18 @@ class ModelTrainer:
     def __init__(self, account = "a1", max_sample_size = 1e8):
         print("Initializing Model trainer")
         # auth, _ = get_auth(account)
-        self.interval = INTERVAL.FIVE_SEC
+        self.interval = INTERVAL.ONE_MIN
         self.commodity = "cotton"
         self.symbol = get_symbols_by_names([self.commodity])[0]
         self.max_sample_size = int(max_sample_size)
     
-    def get_training_data(self, start_dt=date(2017, 1, 1), end_dt=date(2022, 7, 1)):
+    def get_training_data(self, start_dt=date(2022, 12, 1), end_dt=date(2023, 2, 1)):
         dataloader = DataLoader(start_dt=start_dt, end_dt=end_dt)
         data = dataloader.get_offline_data(
                     interval=self.interval, instrument_id=self.symbol, offset=self.max_sample_size, fixed_dt=True)
         return data
 
-    def run(self, is_train=True, model_name = "tcc2"):
+    def run(self, is_train=True, model_name = "ttfp"):
         if model_name == "tcc":
             from .models import TTCModel
             model = TTCModel(interval=self.interval, commodity_name=self.commodity, max_encode_length=200, max_label_length=20)
@@ -36,7 +36,7 @@ class ModelTrainer:
                 model.predict(best_model_path, X_pred, y_pred)
         elif model_name == "ttfp":
             from .models import TTFPModel
-            model = TTFPModel()
+            model = TTFPModel(interval=self.interval, commodity_name=self.commodity)
             if is_train:
                 data = self.get_training_data()
                 model.set_training_data(data)
@@ -48,7 +48,6 @@ class ModelTrainer:
             from .models import TTCModel2
             model = TTCModel2(interval=self.interval, commodity_name=self.commodity, max_encode_length=300, max_label_length=7)
             if is_train:
-                # data = self.get_training_data()
                 data = []
                 model.set_training_data(data)
                 del data

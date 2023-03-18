@@ -195,7 +195,6 @@ class Mongo:
 
     def setup(self, auth: TqAuth, start_dt: date = None, end_dt: date = None) -> None:
         if start_dt and end_dt:
-            print("backtest mode")
             backtest = TqBacktest(start_dt=start_dt, end_dt=end_dt)
             self.account = TqSim(init_balance=1000000)
             self.api = TqApi(auth=auth, backtest=backtest,
