@@ -3,9 +3,9 @@ import os
 logging.getLogger('tensorflow').disabled = True
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 os.environ['__MODIN_AUTOIMPORT_PANDAS__'] = '1' # Fix modin warning 
+os.environ['MODIN_ENGINE'] = 'unidist'
 
 import modin.pandas as pd
-import ray
 import tensorflow as tf
 from tensorflow import keras
 from keras import layers, Model, models
@@ -26,7 +26,6 @@ from utils.tafunc import ema
 class TTCModel:
     # Transformer Time series classification 
     def __init__(self, interval: str, commodity_name: str, max_encode_length: int = 60, max_label_length: int = 5):
-        ray.init(include_dashboard=False)
         print('GPU name: ', tf.config.list_physical_devices('GPU'))
         self.project_name = "ts_prediction_2"
         self.commodity_name = commodity_name

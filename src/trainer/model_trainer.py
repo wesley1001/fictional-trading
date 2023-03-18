@@ -12,13 +12,14 @@ class ModelTrainer:
         self.symbol = get_symbols_by_names([self.commodity])[0]
         self.max_sample_size = int(max_sample_size)
     
-    def get_training_data(self, start_dt=date(2022, 12, 1), end_dt=date(2023, 2, 1)):
+    def get_training_data(self, start_dt=date(2022, 12, 1), end_dt=date(2023, 3, 1)):
         dataloader = DataLoader(start_dt=start_dt, end_dt=end_dt)
         data = dataloader.get_offline_data(
                     interval=self.interval, instrument_id=self.symbol, offset=self.max_sample_size, fixed_dt=True)
         return data
 
     def run(self, is_train=True, model_name = "ttfp"):
+        print("Running Model trainer")
         if model_name == "tcc":
             from .models import TTCModel
             model = TTCModel(interval=self.interval, commodity_name=self.commodity, max_encode_length=200, max_label_length=20)

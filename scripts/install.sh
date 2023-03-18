@@ -20,5 +20,6 @@ pip install pyyaml==6.0
 pip install transformers
 pip install numba
 
+pip install modin[dask]
 # pip install beautifulsoup4
 # python -m pip install prophet
