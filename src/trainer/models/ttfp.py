@@ -3,10 +3,11 @@ import os
 logging.getLogger('tensorflow').disabled = True
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 # os.environ['__MODIN_AUTOIMPORT_PANDAS__'] = '1' # Fix modin warning 
-os.environ['MODIN_ENGINE'] = 'ray'
+os.environ['MODIN_ENGINE'] = 'dask'
+# import ray
 
 import modin.pandas as pd
-import pandas as pd
+# import pandas as pd
 import tensorflow as tf
 from tensorflow import keras
 from keras import layers, Model, models, applications
@@ -28,7 +29,7 @@ class TTFPModel:
     Timeseries Classification
     """
     def __init__(self, interval: str, commodity_name: str, max_encode_length: int = 60, max_label_length: int = 5):
-        ray.init(address='auto')
+        # ray.init(address='auto')
         print('GPU name: ', tf.config.list_physical_devices('GPU'))
         self.project_name = "ts_classification_1"
         self.commodity_name = commodity_name
