@@ -45,13 +45,16 @@ class ModelTrainer:
                 model.train()
             else:
                 pass
-        elif model_name == "tcc2":
+        elif model_name == "ttc2":
             from .models import TTCModel2
-            model = TTCModel2(interval=self.interval, commodity_name=self.commodity, max_encode_length=300, max_label_length=7)
+            data = self.get_training_data()
+            model = TTCModel2(
+                data = data,
+                interval=self.interval, 
+                commodity_name=self.commodity, 
+                max_encode_length=300, max_label_length=7)
+            del data
             if is_train:
-                data = []
-                model.set_training_data(data)
-                del data
                 model.train()
             else:
                 predict_data = self.get_training_data(start_dt=date(2022, 7, 16), end_dt=date(2022, 8, 1))
